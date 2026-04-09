@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pixel Reveal — Guess the Picture</title>
+  <title>Static — Guess the Picture</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="splashScreen" class="splash">
+    <img src="static-intro.gif" alt="Static" class="splash-logo" />
+  </div>
   <div class="scanlines" aria-hidden="true"></div>
   <div class="crt-vignette" aria-hidden="true"></div>
 
   <header class="top-bar">
     <div class="header-brand">
-      <h1 class="logo">PIXEL REVEAL</h1>
+      <img src="static-intro.gif" alt="Static" class="logo-img" />
       <button type="button" id="rulesBtn" class="btn header-rules">RULES</button>
     </div>
     <div class="stats">
@@ -107,6 +110,7 @@
     <span>5 rounds · 15s reveal · faster guesses score higher</span>
   </footer>
 
+  <audio id="bgMusic" src="moodmode-8-bit-game-158815.mp3" loop preload="auto"></audio>
   <script type="module" src="game.js"></script>
 </body>
 </html>
