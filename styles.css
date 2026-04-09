@@ -102,6 +102,7 @@ body {
   width: auto;
   object-fit: contain;
   display: block;
+  margin: 0 auto;
 }
 
 .logo {
