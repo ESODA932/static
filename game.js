@@ -118,34 +118,6 @@ function resizeCanvasToFrame() {
   ctx.imageSmoothingEnabled = false;
 }
 
-// Offscreen noise canvas — regenerated periodically for performance
-let _noiseCanvas = null;
-let _noiseFrame = 0;
-
-function getNoiseCanvas(cw, ch) {
-  // Regenerate noise every 2 frames to save CPU while keeping flicker alive
-  _noiseFrame++;
-  if (!_noiseCanvas || _noiseCanvas.width !== cw || _noiseCanvas.height !== ch || _noiseFrame % 2 === 0) {
-    if (!_noiseCanvas) {
-      _noiseCanvas = document.createElement("canvas");
-    }
-    _noiseCanvas.width = cw;
-    _noiseCanvas.height = ch;
-    const nctx = _noiseCanvas.getContext("2d");
-    const imageData = nctx.createImageData(cw, ch);
-    const data = imageData.data;
-    for (let i = 0; i < data.length; i += 4) {
-      const v = Math.random() * 255;
-      data[i]     = v * (0.6 + Math.random() * 0.8); // R — slightly varied for color
-      data[i + 1] = v * (0.6 + Math.random() * 0.8); // G
-      data[i + 2] = v * (0.6 + Math.random() * 0.8); // B
-      data[i + 3] = 255;
-    }
-    nctx.putImageData(imageData, 0, 0);
-  }
-  return _noiseCanvas;
-}
-
 function drawPixelated(progress) {
   if (!imageBitmap) return;
   const cw = els.pixelCanvas.clientWidth || 320;
@@ -158,15 +130,14 @@ function drawPixelated(progress) {
   const ox = (cw - dw) / 2;
   const oy = (ch - dh) / 2;
 
-  // ── 1. Pixelation: starts very blocky, sharpens as signal comes in ──
-  // Slow easing early so it stays unrecognisable, then clears fast at the end
-  const startBlocks = 12;
-  const pEff = Math.pow(progress, 1.8);
+  // Pixelation difficulty: startBlocks controls max block size at t=0.
+  // Higher = more pixelated start. Exponent controls how long it stays blurry.
+  const startBlocks = 48;
+  const pEff = Math.pow(progress, 1); // stays blocky longer, clears fast at the end
   const blockSize = Math.max(1, Math.round(startBlocks * (1 - pEff) + 1 * pEff));
   const smallW = Math.max(1, Math.ceil(dw / blockSize));
   const smallH = Math.max(1, Math.ceil(dh / blockSize));
 
-  // Draw pixelated image to main canvas
   const off = document.createElement("canvas");
   off.width = smallW;
   off.height = smallH;
@@ -178,18 +149,6 @@ function drawPixelated(progress) {
   ctx.fillRect(0, 0, cw, ch);
   ctx.imageSmoothingEnabled = false;
   ctx.drawImage(off, 0, 0, smallW, smallH, ox, oy, dw, dh);
-
-  // ── 2. Static overlay: full strength early, fades away as signal locks in ──
-  // Static opacity goes from 0.92 → 0 using its own faster easing
-  const staticEff = Math.pow(progress, 1.4);
-  const staticAlpha = Math.max(0, 0.92 * (1 - staticEff));
-
-  if (staticAlpha > 0.01) {
-    const noiseCanvas = getNoiseCanvas(cw, ch);
-    ctx.globalAlpha = staticAlpha;
-    ctx.drawImage(noiseCanvas, 0, 0);
-    ctx.globalAlpha = 1.0;
-  }
 }
 
 function tick() {
@@ -235,7 +194,6 @@ async function startRound() {
   els.guessInput.value = "";
   els.guessInput.focus();
 
-  roundStart = performance.now();
   resizeCanvasToFrame();
 
   try {
@@ -246,6 +204,8 @@ async function startRound() {
     const img = await loadImageData(imgUrl);
     els.gameImage.src = imgUrl;
     imageBitmap = img;
+    // Start the timer only after the image is ready so fetch time doesn't cost the player
+    roundStart = performance.now();
     drawPixelated(0);
   } catch {
     els.feedback.textContent = "Could not load image — skipping.";
@@ -553,6 +513,15 @@ async function initImages() {
 }
 
 await initImages();
+
+// Background music — starts on first user interaction (browser autoplay policy)
+const music = document.getElementById("bgMusic");
+if (music) {
+  music.volume = 0.3;
+  document.addEventListener("click", () => {
+    if (music.paused) music.play();
+  }, { once: true });
+}
 
 renderLocalScores();
 fetchGlobalLeaderboard();
