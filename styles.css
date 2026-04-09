@@ -222,7 +222,7 @@ body {
 .input-row-stack textarea {
   flex: 1;
   min-width: 200px;
-  min-height: 5.5rem;
+  min-height: 2.5rem;
   padding: 0.85rem 0.9rem;
   font-family: inherit;
   font-size: 0.65rem;
