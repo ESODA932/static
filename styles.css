@@ -435,3 +435,28 @@ input[type="text"]:focus {
   font-size: 0.65rem;
   color: var(--text);
 }
+
+/* ── Splash screen ── */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #0d0d0d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: splashFadeOut 0.6s ease-in forwards;
+  animation-delay: 2.6s;
+  pointer-events: none;
+}
+
+.splash-logo {
+  max-width: min(80vw, 640px);
+  width: 100%;
+  height: auto;
+}
+
+@keyframes splashFadeOut {
+  from { opacity: 1; visibility: visible; }
+  to   { opacity: 0; visibility: hidden;  }
+}
