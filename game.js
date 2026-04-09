@@ -160,7 +160,7 @@ function drawPixelated(progress) {
 
   // ── 1. Pixelation: starts very blocky, sharpens as signal comes in ──
   // Slow easing early so it stays unrecognisable, then clears fast at the end
-  const startBlocks = 40;
+  const startBlocks = 12;
   const pEff = Math.pow(progress, 1.8);
   const blockSize = Math.max(1, Math.round(startBlocks * (1 - pEff) + 1 * pEff));
   const smallW = Math.max(1, Math.ceil(dw / blockSize));
